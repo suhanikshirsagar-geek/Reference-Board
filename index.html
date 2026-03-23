@@ -32,6 +32,10 @@
   --r:        4px;
   --rl:       6px;
 
+  --theme-bg:     rgba(90,86,80,0.08);
+  --theme-color:  #5A5650;
+  --theme-border: rgba(90,86,80,0.22);
+
   --cat-clothing: #D4A88A;
   --cat-sports:   #8AAF8A;
   --cat-health:   #C4A0B8;
@@ -283,6 +287,19 @@ body { background: var(--cream); color: var(--ink); font-family: var(--sans); mi
 .ctags { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 10px; }
 .ctag { font-size: 10px; padding: 2px 6px; background: var(--cream2); color: var(--ink4); font-family: var(--mono); border-radius: 1px; }
 
+/* Theme badge on card */
+.theme-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--mono); font-size: 9px;
+  padding: 2px 8px; border-radius: 1px;
+  background: var(--theme-bg); color: var(--theme-color);
+  border: 1px solid var(--theme-border);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  margin-bottom: 8px; cursor: pointer; transition: all 0.15s;
+}
+.theme-badge:hover { background: var(--gold-dim); color: var(--gold); border-color: rgba(184,150,46,0.3); }
+.theme-badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
 .card-foot { display: flex; align-items: center; gap: 6px; }
 .hbadge {
   font-family: var(--mono); font-size: 9px; padding: 2px 8px; border-radius: 1px;
@@ -304,7 +321,10 @@ body { background: var(--cream); color: var(--ink); font-family: var(--sans); mi
 .lv .card-div { display: none; }
 .lv .cats { margin-bottom: 0; flex: 1; }
 .lv .ctags { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 0; max-width: 300px; }
-.lv .card-foot { flex: 0 0 auto; }
+.card-foot { display: none; }
+.lv .card-foot { display: flex; flex: 0 0 auto; }
+.btn-visit { font-family: var(--mono); font-size: 10px; padding: 5px 12px; border-radius: 2px; border: 1px solid var(--rule); background: var(--cream); color: var(--ink3); text-decoration: none; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+.btn-visit:hover { background: var(--ink); color: var(--cream); border-color: var(--ink); }
 
 /* ── MULTI-SELECT BAR ── */
 .sel-bar {
@@ -490,12 +510,17 @@ body { background: var(--cream); color: var(--ink); font-family: var(--sans); mi
       <option value="def">Default order</option>
       <option value="ua">URL A → Z</option>
       <option value="ud">URL Z → A</option>
+      <option value="ta">Theme A → Z</option>
       <option value="ca">Category A → Z</option>
     </select>
   </div>
   <div class="sb-sec">
     <span class="sb-lbl">Category</span>
     <div id="catf" role="group" aria-label="Filter by category"></div>
+  </div>
+  <div class="sb-sec">
+    <span class="sb-lbl">Theme</span>
+    <div id="themef" role="group" aria-label="Filter by theme"></div>
   </div>
   <button class="clear-all" onclick="clearAll()">Clear filters</button>
 </aside>
@@ -616,7 +641,7 @@ const CAT_COL={'Clothing & Apparel':'var(--cat-clothing)','Sports & Outdoors':'v
 
 let DATA=[], filtered=[], favs=new Set(JSON.parse(localStorage.getItem('rb4_favs')||'[]'));
 let selected=new Set();
-let filters={h:new Set(),cat:new Set()};
+let filters={h:new Set(),cat:new Set(),theme:new Set()};
 let tab='all', sortK='def', q='', page=1, PG=60, selectMode=false;
 
 function init(d){
@@ -627,11 +652,12 @@ function init(d){
 }
 
 function buildSidebar(){
-  const catc={};
+  const catc={}, themc={};
   DATA.forEach(r=>{
     catc[r.l1_category]=(catc[r.l1_category]||0)+1;
+    const th=(r.theme_name||'').trim();
+    if(th) themc[th]=(themc[th]||0)+1;
   });
-
 
   document.getElementById('catf').innerHTML=Object.entries(catc).sort((a,b)=>b[1]-a[1]).map(([cat,n])=>
     `<button class="fb" onclick="tog('cat','${encodeURIComponent(cat)}',this)" aria-pressed="false">
@@ -639,6 +665,18 @@ function buildSidebar(){
       <span class="lbl">${cat}</span>
       <span class="cnt">${n.toLocaleString()}</span>
     </button>`).join('');
+
+  const themeEl=document.getElementById('themef');
+  if(Object.keys(themc).length===0){
+    themeEl.innerHTML='<div style="font-family:var(--mono);font-size:10px;color:var(--ink4);padding:4px 2px;letter-spacing:0.06em">Run scrape_themes.py<br>to populate themes</div>';
+  } else {
+    themeEl.innerHTML=Object.entries(themc).sort((a,b)=>b[1]-a[1]).map(([th,n])=>
+      `<button class="fb" onclick="tog('theme','${encodeURIComponent(th)}',this)" aria-pressed="false">
+        <span class="dot" style="background:var(--ink3)"></span>
+        <span class="lbl">${th}</span>
+        <span class="cnt">${n.toLocaleString()}</span>
+      </button>`).join('');
+  }
 }
 
 function tog(type,val,btn){
@@ -649,7 +687,7 @@ function tog(type,val,btn){
 }
 
 function clearAll(){
-  filters={h:new Set(),cat:new Set()};
+  filters={h:new Set(),cat:new Set(),theme:new Set()};
   document.querySelectorAll('.fb').forEach(b=>{b.classList.remove('on');b.setAttribute('aria-pressed','false');});
   q='';document.getElementById('search-input').value='';
   sortK='def';document.getElementById('sort').value='def';
@@ -662,14 +700,16 @@ function run(){
   else if(tab==='other') d=d.filter(r=>r.l1_category==='Other / Unclear');
   if(q){
     const ql=q.toLowerCase();
-    d=d.filter(r=>(r.original_url||'').toLowerCase().includes(ql)||(r.final_url||'').toLowerCase().includes(ql)||(r.l1_category||'').toLowerCase().includes(ql)||(r.l2_category||'').toLowerCase().includes(ql)||(r.l3_category||'').toLowerCase().includes(ql)||(r.tags||'').toLowerCase().includes(ql)||(r.notes||'').toLowerCase().includes(ql));
+    d=d.filter(r=>(r.original_url||'').toLowerCase().includes(ql)||(r.final_url||'').toLowerCase().includes(ql)||(r.l1_category||'').toLowerCase().includes(ql)||(r.l2_category||'').toLowerCase().includes(ql)||(r.l3_category||'').toLowerCase().includes(ql)||(r.tags||'').toLowerCase().includes(ql)||(r.notes||'').toLowerCase().includes(ql)||(r.theme_name||'').toLowerCase().includes(ql));
   }
   if(filters.cat.size) d=d.filter(r=>filters.cat.has(r.l1_category||''));
+  if(filters.theme.size) d=d.filter(r=>filters.theme.has((r.theme_name||'').trim()));
   if(sortK==='ua') d.sort((a,b)=>(a.original_url||'').localeCompare(b.original_url||''));
   if(sortK==='ud') d.sort((a,b)=>(b.original_url||'').localeCompare(a.original_url||''));
   if(sortK==='ch') d.sort((a,b)=>({'high':0,'medium':1,'low':2}[a.confidence]||2)-({'high':0,'medium':1,'low':2}[b.confidence]||2));
   if(sortK==='cl') d.sort((a,b)=>({'high':0,'medium':1,'low':2}[b.confidence]||2)-({'high':0,'medium':1,'low':2}[a.confidence]||2));
   if(sortK==='ca') d.sort((a,b)=>(a.l1_category||'').localeCompare(b.l1_category||''));
+  if(sortK==='ta') d.sort((a,b)=>(a.theme_name||'zzz').localeCompare(b.theme_name||'zzz'));
   filtered=d; render(); updateStats();
 }
 
@@ -725,8 +765,25 @@ function buildCard(r,i){
         ${r.l3_category?`<span class="cp cl3">${r.l3_category}</span>`:''}
       </div>
       ${tags.length?`<div class="ctags">${tags.map(t=>`<span class="ctag">${t}</span>`).join('')}</div>`:''}
+      ${r.theme_name?`<div onclick="event.stopPropagation();filterByTheme('${encodeURIComponent(r.theme_name.trim())}')" class="theme-badge" title="Filter by theme: ${r.theme_name}"><span class="theme-badge-dot"></span>${r.theme_name}</div>`:''}
+      <div class="card-foot"><a class="btn-visit" href="${finalUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Visit Store ↗</a></div>
     </div>
   </div>`;
+}
+
+function filterByTheme(enc){
+  const th=decodeURIComponent(enc);
+  // Clear existing theme filters and apply this one
+  filters.theme.clear();
+  filters.theme.add(th);
+  // Update sidebar button states
+  document.querySelectorAll('#themef .fb').forEach(b=>{
+    const match=decodeURIComponent(b.getAttribute('onclick').match(/'([^']+)'/)?.[1]||'')===th;
+    b.classList.toggle('on',match);
+    b.setAttribute('aria-pressed',match.toString());
+  });
+  page=1;run();
+  showToast(`Theme: ${th}`);
 }
 
 function loadMore(){page++;render();}
@@ -815,6 +872,7 @@ function openDetail(r){
       <div class="d-field"><div class="d-lbl">L2 Sub-category</div><div class="d-val">${r.l2_category||'—'}</div></div>
       <div class="d-field"><div class="d-lbl">L3 Specific</div><div class="d-val">${r.l3_category||'—'}</div></div>
       <div class="d-field"><div class="d-lbl">Status Code</div><div class="d-val" style="font-family:var(--mono);font-size:12px">${r.status_code||'—'}</div></div>
+      <div class="d-field"><div class="d-lbl">Shopify Theme</div><div class="d-val" style="font-family:var(--mono);font-size:12px">${r.theme_name||'—'}</div></div>
     </div>
     ${r.tags?`<div class="d-tags-wrap"><div class="d-lbl">Tags</div><div class="d-tags">${r.tags.split(',').map(t=>`<span class="d-tag">${t.trim()}</span>`).join('')}</div></div>`:''}
     ${r.notes&&r.notes.length>10?`<div class="d-notes">${r.notes}</div>`:''}
