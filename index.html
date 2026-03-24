@@ -36,6 +36,17 @@
   --theme-color:  #5A5650;
   --theme-border: rgba(90,86,80,0.22);
 
+  /* Sheet type colours */
+  --func-web-bg:    rgba(100,140,200,0.10);
+  --func-web-color: #2D4A8A;
+  --func-web-border:rgba(100,140,200,0.28);
+  --func-app-bg:    rgba(80,160,100,0.10);
+  --func-app-color: #1A6635;
+  --func-app-border:rgba(80,160,100,0.28);
+  --func-api-bg:    rgba(160,80,180,0.10);
+  --func-api-color: #6A1A80;
+  --func-api-border:rgba(160,80,180,0.28);
+
   --cat-clothing: #D4A88A;
   --cat-sports:   #8AAF8A;
   --cat-health:   #C4A0B8;
@@ -56,7 +67,6 @@
 html { scroll-behavior: smooth; }
 body { background: var(--cream); color: var(--ink); font-family: var(--sans); min-height: 100vh; font-size: 14px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
 
-/* ADA */
 :focus-visible { outline: 1.5px solid var(--gold); outline-offset: 3px; border-radius: 2px; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
 
@@ -125,13 +135,23 @@ body { background: var(--cream); color: var(--ink); font-family: var(--sans); mi
 .sidebar::-webkit-scrollbar { width: 2px; }
 .sidebar::-webkit-scrollbar-thumb { background: var(--rule); }
 
-.sb-sec { padding: 0 20px 24px; }
+.sb-sec { padding: 0 20px 0; }
+.sb-sec-body { padding-bottom: 20px; overflow: hidden; transition: max-height 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.22s ease; }
+.sb-sec-body.collapsed { max-height: 0 !important; opacity: 0; pointer-events: none; padding-bottom: 0; }
+
 .sb-lbl {
   font-family: var(--mono); font-size: 9px; text-transform: uppercase;
   letter-spacing: 0.18em; color: var(--ink4);
-  padding: 0 2px 10px; display: block;
-  border-bottom: 1px solid var(--rule2); margin-bottom: 10px;
+  padding: 10px 2px; display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--rule2); margin-bottom: 0;
+  cursor: pointer; width: 100%; background: none; border-left: none; border-right: none; border-top: none;
+  transition: color 0.15s;
 }
+.sb-lbl:hover { color: var(--ink2); }
+.sb-lbl-text { flex: 1; }
+.sb-lbl-active { display: inline-block; background: var(--gold); color: var(--cream); font-size: 8px; padding: 1px 5px; border-radius: 1px; margin-left: 5px; vertical-align: middle; }
+.sb-chevron { font-size: 8px; transition: transform 0.25s ease; opacity: 0.5; }
+.sb-lbl.open .sb-chevron { transform: rotate(180deg); }
 
 .fb {
   display: flex; align-items: center; gap: 8px;
@@ -148,6 +168,30 @@ body { background: var(--cream); color: var(--ink); font-family: var(--sans); mi
 .fb.on .cnt { color: var(--gold); }
 .fb .ico { font-size: 12px; flex-shrink: 0; line-height: 1; opacity: 0.75; }
 .fb .lbl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+
+/* Sheet type filter pills */
+.sheet-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.sheet-pill {
+  display: flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 2px; border: 1px solid var(--rule2);
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase;
+  cursor: pointer; transition: all 0.15s; background: transparent; color: var(--ink4);
+}
+.sheet-pill:hover { border-color: var(--ink3); color: var(--ink2); }
+.sheet-pill.on[data-st="website"]  { background: var(--func-web-bg); color: var(--func-web-color); border-color: var(--func-web-border); }
+.sheet-pill.on[data-st="app"]      { background: var(--func-app-bg); color: var(--func-app-color); border-color: var(--func-app-border); }
+.sheet-pill.on[data-st="api"]      { background: var(--func-api-bg); color: var(--func-api-color); border-color: var(--func-api-border); }
+.sheet-pill-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+/* Func filter — collapsible with show-more */
+.func-list { display: flex; flex-direction: column; gap: 1px; }
+.func-more-btn {
+  width: 100%; padding: 5px 4px; background: none; border: none;
+  color: var(--ink4); font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
+  text-align: left; transition: color 0.15s; margin-top: 4px;
+}
+.func-more-btn:hover { color: var(--gold); }
 
 .sort-sel {
   width: 100%; background: transparent; border: none;
@@ -223,14 +267,13 @@ body { background: var(--cream); color: var(--ink); font-family: var(--sans); mi
 .card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: rgba(14,13,11,0.14); }
 .card.fav { border-color: var(--gold-lt); }
 .card.sel { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold-dim); }
+.card.func-only { border-style: dashed; background: var(--cream); }
 @keyframes cardIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Colour rule — thin top border per category */
 .card-rule { height: 3px; width: 100%; }
 
 .card-body { padding: 16px; }
 
-/* Hover actions */
 .card-actions {
   position: absolute; top: 10px; right: 10px;
   display: flex; gap: 5px;
@@ -272,7 +315,6 @@ body { background: var(--cream); color: var(--ink); font-family: var(--sans); mi
 }
 .card-url { font-family: var(--mono); font-size: 9px; color: var(--ink4); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0.02em; }
 
-/* Divider */
 .card-div { height: 1px; background: var(--rule2); margin: 10px 0; }
 
 .cats { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
@@ -295,10 +337,26 @@ body { background: var(--cream); color: var(--ink); font-family: var(--sans); mi
   background: var(--theme-bg); color: var(--theme-color);
   border: 1px solid var(--theme-border);
   letter-spacing: 0.06em; text-transform: uppercase;
-  margin-bottom: 8px; cursor: pointer; transition: all 0.15s;
+  margin-bottom: 6px; cursor: pointer; transition: all 0.15s;
 }
 .theme-badge:hover { background: var(--gold-dim); color: var(--gold); border-color: rgba(184,150,46,0.3); }
 .theme-badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+/* Functionality badges on card */
+.func-badges { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+.func-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--mono); font-size: 9px;
+  padding: 2px 7px; border-radius: 1px;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  cursor: pointer; transition: all 0.15s;
+  max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.func-badge[data-st="website"] { background: var(--func-web-bg); color: var(--func-web-color); border: 1px solid var(--func-web-border); }
+.func-badge[data-st="app"]     { background: var(--func-app-bg); color: var(--func-app-color); border: 1px solid var(--func-app-border); }
+.func-badge[data-st="api"]     { background: var(--func-api-bg); color: var(--func-api-color); border: 1px solid var(--func-api-border); }
+.func-badge:hover { opacity: 0.75; }
+.func-badge-dot { width: 4px; height: 4px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
 
 .card-foot { display: flex; align-items: center; gap: 6px; }
 .hbadge {
@@ -323,6 +381,8 @@ body { background: var(--cream); color: var(--ink); font-family: var(--sans); mi
 .lv .ctags { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 0; max-width: 300px; }
 .card-foot { display: none; }
 .lv .card-foot { display: flex; flex: 0 0 auto; }
+.lv .theme-badge { margin-bottom: 0; }
+.lv .func-badges { margin-bottom: 0; flex-wrap: nowrap; overflow: hidden; max-width: 220px; }
 .btn-visit { font-family: var(--mono); font-size: 10px; padding: 5px 12px; border-radius: 2px; border: 1px solid var(--rule); background: var(--cream); color: var(--ink3); text-decoration: none; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; transition: background 0.15s, color 0.15s, border-color 0.15s; }
 .btn-visit:hover { background: var(--ink); color: var(--cream); border-color: var(--ink); }
 
@@ -379,7 +439,7 @@ body { background: var(--cream); color: var(--ink); font-family: var(--sans); mi
 .modal {
   background: var(--cream); border: 1px solid var(--rule);
   border-radius: var(--rl); padding: 36px;
-  max-width: 560px; width: 100%; max-height: 86vh; overflow-y: auto;
+  max-width: 580px; width: 100%; max-height: 86vh; overflow-y: auto;
   box-shadow: var(--shadow-lg);
   transform: translateY(16px) scale(0.98);
   transition: transform 0.3s cubic-bezier(0.34, 1.3, 0.64, 1);
@@ -390,14 +450,12 @@ body { background: var(--cream); color: var(--ink); font-family: var(--sans); mi
 .modal-close { width: 28px; height: 28px; background: none; border: 1px solid var(--rule); border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--ink4); font-size: 14px; transition: all 0.15s; flex-shrink: 0; margin-top: 4px; }
 .modal-close:hover { border-color: var(--ink3); color: var(--ink); }
 
-/* Detail modal body */
 .d-url-block { margin-bottom: 24px; }
 .d-url-main {
   font-family: var(--serif); font-size: 13px; color: var(--gold);
   text-decoration: none; display: inline-flex; align-items: center; gap: 5px;
   letter-spacing: 0.02em; border-bottom: 1px solid transparent;
-  transition: border-color 0.2s;
-  word-break: break-all;
+  transition: border-color 0.2s; word-break: break-all;
 }
 .d-url-main:hover { border-bottom-color: var(--gold); }
 .d-url-orig { font-family: var(--mono); font-size: 10px; color: var(--ink4); margin-top: 4px; letter-spacing: 0.04em; }
@@ -425,6 +483,35 @@ body { background: var(--cream); color: var(--ink); font-family: var(--sans); mi
 .d-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
 .d-tag { font-family: var(--mono); font-size: 10px; padding: 3px 10px; background: var(--cream2); color: var(--ink3); border-radius: 1px; letter-spacing: 0.04em; }
 
+/* Functionality section in detail modal */
+.d-func-section { margin-bottom: 24px; }
+.d-func-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.d-func-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 14px;
+  border-radius: 3px; border: 1px solid var(--rule2);
+  background: var(--cream2);
+}
+.d-func-item[data-st="website"] { border-left: 3px solid var(--func-web-color); }
+.d-func-item[data-st="app"]     { border-left: 3px solid var(--func-app-color); }
+.d-func-item[data-st="api"]     { border-left: 3px solid var(--func-api-color); }
+.d-func-name { font-size: 12px; font-weight: 400; color: var(--ink2); flex: 1; letter-spacing: 0.01em; }
+.d-func-meta { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+.d-func-st {
+  font-family: var(--mono); font-size: 9px; padding: 1px 6px;
+  border-radius: 1px; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.d-func-st[data-st="website"] { background: var(--func-web-bg); color: var(--func-web-color); border: 1px solid var(--func-web-border); }
+.d-func-st[data-st="app"]     { background: var(--func-app-bg); color: var(--func-app-color); border: 1px solid var(--func-app-border); }
+.d-func-st[data-st="api"]     { background: var(--func-api-bg); color: var(--func-api-color); border: 1px solid var(--func-api-border); }
+.d-func-link {
+  font-family: var(--mono); font-size: 9px; color: var(--gold);
+  text-decoration: none; letter-spacing: 0.04em;
+  padding: 1px 6px; border: 1px solid rgba(184,150,46,0.3);
+  border-radius: 1px; white-space: nowrap;
+}
+.d-func-link:hover { background: var(--gold-dim); }
+
 .d-notes { background: var(--cream2); border-left: 2px solid var(--gold); padding: 14px 16px; font-size: 13px; font-weight: 300; color: var(--ink2); line-height: 1.7; margin-bottom: 24px; letter-spacing: 0.01em; font-family: var(--serif); font-style: italic; }
 
 .modal-actions { display: flex; gap: 10px; padding-top: 20px; border-top: 1px solid var(--rule2); flex-wrap: wrap; }
@@ -451,7 +538,6 @@ body { background: var(--cream); color: var(--ink); font-family: var(--sans); mi
 .form-hint { font-family: var(--mono); font-size: 10px; color: var(--ink4); margin-top: 5px; letter-spacing: 0.04em; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
-/* Confirm modal */
 .confirm-box { text-align: center; padding: 8px 0 0; }
 .confirm-ico { font-size: 32px; margin-bottom: 16px; opacity: 0.5; }
 .confirm-title { font-family: var(--serif); font-size: 20px; font-weight: 300; color: var(--ink); margin-bottom: 10px; letter-spacing: 0.02em; }
@@ -460,7 +546,6 @@ body { background: var(--cream); color: var(--ink); font-family: var(--sans); mi
 .btn-danger { padding: 9px 22px; background: #8A2D2D; color: #fff; border: none; font-family: var(--sans); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; border-radius: 1px; transition: background 0.15s; }
 .btn-danger:hover { background: #6A1A1A; }
 
-/* Toast */
 .toast {
   position: fixed; bottom: 96px; left: 50%;
   transform: translateX(-50%) translateY(16px);
@@ -491,7 +576,7 @@ body { background: var(--cream); color: var(--ink); font-family: var(--sans); mi
   <div class="hdr-search" role="search">
     <label for="search-input" class="sr-only">Search stores</label>
     <span class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
-    <input type="search" id="search-input" placeholder="Search stores, categories, tags…" autocomplete="off" aria-label="Search">
+    <input type="search" id="search-input" placeholder="Search stores, categories, themes, functionality…" autocomplete="off" aria-label="Search">
   </div>
   <div class="hdr-right">
     <div class="hdr-count" aria-live="polite"><strong id="s-total">0</strong> stores · ⭐ <strong id="s-favs">0</strong></div>
@@ -505,31 +590,58 @@ body { background: var(--cream); color: var(--ink); font-family: var(--sans); mi
 <div class="layout">
 <aside class="sidebar" aria-label="Filters and sorting">
   <div class="sb-sec">
-    <span class="sb-lbl">Sort by</span>
-    <select class="sort-sel" id="sort" aria-label="Sort stores">
-      <option value="def">Default order</option>
-      <option value="ua">URL A → Z</option>
-      <option value="ud">URL Z → A</option>
-      <option value="ta">Theme A → Z</option>
-      <option value="ca">Category A → Z</option>
-    </select>
+    <button class="sb-lbl open" onclick="toggleSec(this)" aria-expanded="true">
+      <span class="sb-lbl-text">Sort by</span>
+      <span class="sb-chevron">▼</span>
+    </button>
+    <div class="sb-sec-body" style="max-height:120px">
+      <select class="sort-sel" id="sort" aria-label="Sort stores" style="margin-top:10px">
+        <option value="def">Default order</option>
+        <option value="ua">URL A → Z</option>
+        <option value="ud">URL Z → A</option>
+        <option value="ta">Theme A → Z</option>
+        <option value="ca">Category A → Z</option>
+      </select>
+    </div>
   </div>
   <div class="sb-sec">
-    <span class="sb-lbl">Category</span>
-    <div id="catf" role="group" aria-label="Filter by category"></div>
+    <button class="sb-lbl open" id="cat-lbl" onclick="toggleSec(this)" aria-expanded="true">
+      <span class="sb-lbl-text">Category</span>
+      <span class="sb-chevron">▼</span>
+    </button>
+    <div class="sb-sec-body" style="max-height:600px;padding-top:8px">
+      <div id="catf" role="group" aria-label="Filter by category"></div>
+    </div>
   </div>
   <div class="sb-sec">
-    <span class="sb-lbl">Theme</span>
-    <div id="themef" role="group" aria-label="Filter by theme"></div>
+    <button class="sb-lbl" id="theme-lbl" onclick="toggleSec(this)" aria-expanded="false">
+      <span class="sb-lbl-text">Theme</span>
+      <span class="sb-chevron">▼</span>
+    </button>
+    <div class="sb-sec-body collapsed" style="max-height:600px;padding-top:8px">
+      <div id="themef" role="group" aria-label="Filter by theme"></div>
+    </div>
+  </div>
+  <div class="sb-sec" id="func-sidebar-sec">
+    <button class="sb-lbl" id="func-lbl" onclick="toggleSec(this)" aria-expanded="false">
+      <span class="sb-lbl-text">Functionality</span>
+      <span class="sb-chevron">▼</span>
+    </button>
+    <div class="sb-sec-body collapsed" style="max-height:1000px;padding-top:8px">
+      <div class="sheet-pills" id="sheet-pills" role="group" aria-label="Filter by sheet type"></div>
+      <div class="func-list" id="funcf" role="group" aria-label="Filter by functionality"></div>
+      <button class="func-more-btn" id="func-more-btn" onclick="toggleFuncMore()" style="display:none">+ Show more</button>
+    </div>
   </div>
   <button class="clear-all" onclick="clearAll()">Clear filters</button>
 </aside>
 
 <main class="main" id="main-content" tabindex="-1">
   <div class="tabs" role="tablist" aria-label="View tabs">
-    <button class="tab on" role="tab" aria-selected="true" onclick="setTab('all',this)">All Stores</button>
-    <button class="tab" role="tab" aria-selected="false" onclick="setTab('favs',this)">Saved <span class="tbadge" id="fbadge">0</span></button>
-    <button class="tab" role="tab" aria-selected="false" onclick="setTab('other',this)">Other</button>
+    <button class="tab on" role="tab" aria-selected="true"  onclick="setTab('all',this)">All Stores</button>
+    <button class="tab"    role="tab" aria-selected="false" onclick="setTab('func',this)">With Functionality <span class="tbadge" id="fbadge-func">0</span></button>
+    <button class="tab"    role="tab" aria-selected="false" onclick="setTab('favs',this)">Saved <span class="tbadge" id="fbadge">0</span></button>
+    <button class="tab"    role="tab" aria-selected="false" onclick="setTab('other',this)">Other</button>
   </div>
   <div class="toolbar">
     <div class="result-count" aria-live="polite"><strong id="rcount">0</strong> results</div>
@@ -638,27 +750,27 @@ body { background: var(--cream); color: var(--ink); font-family: var(--sans); mi
 <script>
 const ICONS={'Clothing & Apparel':'👗','Sports & Outdoors':'🏋️','Health & Beauty':'💄','Home & Kitchen':'🛋️','Electronics & Tech':'💻','Food & Grocery':'🥗','Baby & Kids':'🧸','Pets':'🐾','Jewelry & Accessories':'💍','Arts, Crafts & Hobbies':'🎨','Books, Media & Education':'📚','Automotive':'🚗','Industrial & B2B':'🏭','Travel & Luggage':'🧳','Other / Unclear':'○'};
 const CAT_COL={'Clothing & Apparel':'var(--cat-clothing)','Sports & Outdoors':'var(--cat-sports)','Health & Beauty':'var(--cat-health)','Home & Kitchen':'var(--cat-home)','Electronics & Tech':'var(--cat-tech)','Food & Grocery':'var(--cat-food)','Baby & Kids':'var(--cat-baby)','Pets':'var(--cat-pets)','Jewelry & Accessories':'var(--cat-jewelry)','Arts, Crafts & Hobbies':'var(--cat-arts)','Books, Media & Education':'var(--cat-books)','Automotive':'var(--cat-auto)','Industrial & B2B':'var(--cat-biz)','Travel & Luggage':'var(--cat-travel)','Other / Unclear':'var(--cat-other)'};
+const ST_LABEL={'website':'Web','app':'App','api':'API'};
 
 let DATA=[], filtered=[], favs=new Set(JSON.parse(localStorage.getItem('rb4_favs')||'[]'));
 let selected=new Set();
-let filters={h:new Set(),cat:new Set(),theme:new Set()};
+let filters={cat:new Set(),theme:new Set(),func:new Set(),sheet:new Set()};
 let tab='all', sortK='def', q='', page=1, PG=60, selectMode=false;
+let funcShowAll=false;
+const FUNC_INIT_SHOW=12;
 
 function init(d){
   const local=JSON.parse(localStorage.getItem('rb4_added')||'[]');
   DATA=[...d,...local];
   buildSidebar(); run();
-  document.getElementById('s-total').textContent=DATA.length.toLocaleString();
+  // Only count non-func-only stores in header
+  document.getElementById('s-total').textContent=DATA.filter(s=>!s._func_only).length.toLocaleString();
 }
 
 function buildSidebar(){
-  const catc={}, themc={};
-  DATA.forEach(r=>{
-    catc[r.l1_category]=(catc[r.l1_category]||0)+1;
-    const th=(r.theme_name||'').trim();
-    if(th) themc[th]=(themc[th]||0)+1;
-  });
-
+  // ── Category ──
+  const catc={};
+  DATA.filter(s=>!s._func_only).forEach(r=>{catc[r.l1_category]=(catc[r.l1_category]||0)+1;});
   document.getElementById('catf').innerHTML=Object.entries(catc).sort((a,b)=>b[1]-a[1]).map(([cat,n])=>
     `<button class="fb" onclick="tog('cat','${encodeURIComponent(cat)}',this)" aria-pressed="false">
       <span class="ico" aria-hidden="true" style="font-size:11px">${ICONS[cat]||'○'}</span>
@@ -666,9 +778,12 @@ function buildSidebar(){
       <span class="cnt">${n.toLocaleString()}</span>
     </button>`).join('');
 
+  // ── Theme ──
+  const themc={};
+  DATA.filter(s=>!s._func_only).forEach(r=>{const th=(r.theme_name||'').trim();if(th)themc[th]=(themc[th]||0)+1;});
   const themeEl=document.getElementById('themef');
   if(Object.keys(themc).length===0){
-    themeEl.innerHTML='<div style="font-family:var(--mono);font-size:10px;color:var(--ink4);padding:4px 2px;letter-spacing:0.06em">Run scrape_themes.py<br>to populate themes</div>';
+    themeEl.innerHTML='<div style="font-family:var(--mono);font-size:10px;color:var(--ink4);padding:4px 2px;letter-spacing:0.06em">No theme data yet</div>';
   } else {
     themeEl.innerHTML=Object.entries(themc).sort((a,b)=>b[1]-a[1]).map(([th,n])=>
       `<button class="fb" onclick="tog('theme','${encodeURIComponent(th)}',this)" aria-pressed="false">
@@ -677,39 +792,157 @@ function buildSidebar(){
         <span class="cnt">${n.toLocaleString()}</span>
       </button>`).join('');
   }
+
+  // ── Sheet type pills ──
+  const stCounts={website:0,app:0,api:0};
+  DATA.forEach(s=>{(s.functionality_refs||[]).forEach(r=>{if(stCounts[r.sheet_type]!==undefined)stCounts[r.sheet_type]++;});});
+  document.getElementById('sheet-pills').innerHTML=
+    Object.entries(stCounts).filter(([,n])=>n>0).map(([st,n])=>
+      `<button class="sheet-pill" data-st="${st}" onclick="togSheet('${st}',this)" aria-pressed="false">
+        <span class="sheet-pill-dot"></span>${ST_LABEL[st]}<span style="font-size:9px;opacity:0.6"> ${n}</span>
+      </button>`).join('');
+
+  // ── Functionality names ──
+  const funcC={};
+  DATA.forEach(s=>{(s.functionality_refs||[]).forEach(r=>{funcC[r.functionality]=(funcC[r.functionality]||0)+1;});});
+  const funcEntries=Object.entries(funcC).sort((a,b)=>b[1]-a[1]);
+  const funcEl=document.getElementById('funcf');
+  const moreBtn=document.getElementById('func-more-btn');
+
+  function renderFuncList(){
+    const show=funcShowAll?funcEntries:funcEntries.slice(0,FUNC_INIT_SHOW);
+    funcEl.innerHTML=show.map(([fn,n])=>
+      `<button class="fb" onclick="tog('func','${encodeURIComponent(fn)}',this)" aria-pressed="false">
+        <span class="dot" style="background:var(--ink4)"></span>
+        <span class="lbl">${fn}</span>
+        <span class="cnt">${n.toLocaleString()}</span>
+      </button>`).join('');
+    // re-apply active states
+    filters.func.forEach(fn=>{
+      funcEl.querySelectorAll('.fb').forEach(b=>{
+        try{if(decodeURIComponent(b.getAttribute('onclick').match(/'([^']+)'/)?.[1]||'')===fn){b.classList.add('on');b.setAttribute('aria-pressed','true');}}catch(e){}
+      });
+    });
+    if(funcEntries.length>FUNC_INIT_SHOW){
+      moreBtn.style.display='block';
+      moreBtn.textContent=funcShowAll?'− Show less':`+ ${funcEntries.length-FUNC_INIT_SHOW} more`;
+    } else {
+      moreBtn.style.display='none';
+    }
+  }
+  renderFuncList();
+  window._renderFuncList=renderFuncList;
 }
+
+function toggleSec(lbl){
+  const body=lbl.nextElementSibling;
+  const isOpen=lbl.classList.contains('open');
+  lbl.classList.toggle('open',!isOpen);
+  lbl.setAttribute('aria-expanded',(!isOpen).toString());
+  body.classList.toggle('collapsed',isOpen);
+}
+
+// Auto-open a sidebar section by its label button id
+function openSec(lblId){
+  const lbl=document.getElementById(lblId);
+  if(!lbl) return;
+  const body=lbl.nextElementSibling;
+  lbl.classList.add('open');lbl.setAttribute('aria-expanded','true');
+  body.classList.remove('collapsed');
+}
+
+function toggleFuncMore(){funcShowAll=!funcShowAll;window._renderFuncList&&window._renderFuncList();}
 
 function tog(type,val,btn){
   const v=decodeURIComponent(val);
   if(filters[type].has(v)){filters[type].delete(v);btn.classList.remove('on');btn.setAttribute('aria-pressed','false');}
   else{filters[type].add(v);btn.classList.add('on');btn.setAttribute('aria-pressed','true');}
+  if(type==='cat') openSec('cat-lbl');
+  if(type==='theme') openSec('theme-lbl');
+  if(type==='func') openSec('func-lbl');
+  updateActiveBadges();
   page=1;run();
 }
 
+function togSheet(st,btn){
+  if(filters.sheet.has(st)){filters.sheet.delete(st);btn.classList.remove('on');btn.setAttribute('aria-pressed','false');}
+  else{filters.sheet.add(st);btn.classList.add('on');btn.setAttribute('aria-pressed','true');}
+  openSec('func-lbl');
+  updateActiveBadges();
+  page=1;run();
+}
+
+function updateActiveBadges(){
+  // Cat badge
+  updateBadge('cat-lbl', filters.cat.size);
+  updateBadge('theme-lbl', filters.theme.size);
+  updateBadge('func-lbl', filters.func.size + filters.sheet.size);
+}
+function updateBadge(lblId, count){
+  const lbl=document.getElementById(lblId);
+  if(!lbl) return;
+  let badge=lbl.querySelector('.sb-lbl-active');
+  if(count>0){
+    if(!badge){badge=document.createElement('span');badge.className='sb-lbl-active';lbl.querySelector('.sb-lbl-text').appendChild(badge);}
+    badge.textContent=count;
+  } else {
+    if(badge) badge.remove();
+  }
+}
+
 function clearAll(){
-  filters={h:new Set(),cat:new Set(),theme:new Set()};
+  filters={cat:new Set(),theme:new Set(),func:new Set(),sheet:new Set()};
   document.querySelectorAll('.fb').forEach(b=>{b.classList.remove('on');b.setAttribute('aria-pressed','false');});
+  document.querySelectorAll('.sheet-pill').forEach(b=>{b.classList.remove('on');b.setAttribute('aria-pressed','false');});
   q='';document.getElementById('search-input').value='';
   sortK='def';document.getElementById('sort').value='def';
+  updateActiveBadges();
   page=1;run();
 }
 
 function run(){
+  const hasFuncFilter=filters.func.size>0||filters.sheet.size>0;
+
   let d=[...DATA];
+
+  // Tab filter
   if(tab==='favs') d=d.filter(r=>favs.has(r.original_url));
-  else if(tab==='other') d=d.filter(r=>r.l1_category==='Other / Unclear');
+  else if(tab==='other') d=d.filter(r=>r.l1_category==='Other / Unclear'&&!r._func_only);
+  else if(tab==='func') d=d.filter(r=>(r.functionality_refs||[]).length>0);
+  else {
+    // 'all' tab: hide func-only unless a func/sheet filter is active
+    if(!hasFuncFilter) d=d.filter(r=>!r._func_only);
+  }
+
+  // Text search
   if(q){
     const ql=q.toLowerCase();
-    d=d.filter(r=>(r.original_url||'').toLowerCase().includes(ql)||(r.final_url||'').toLowerCase().includes(ql)||(r.l1_category||'').toLowerCase().includes(ql)||(r.l2_category||'').toLowerCase().includes(ql)||(r.l3_category||'').toLowerCase().includes(ql)||(r.tags||'').toLowerCase().includes(ql)||(r.notes||'').toLowerCase().includes(ql)||(r.theme_name||'').toLowerCase().includes(ql));
+    d=d.filter(r=>(r.original_url||'').toLowerCase().includes(ql)||(r.final_url||'').toLowerCase().includes(ql)||(r.l1_category||'').toLowerCase().includes(ql)||(r.l2_category||'').toLowerCase().includes(ql)||(r.l3_category||'').toLowerCase().includes(ql)||(r.tags||'').toLowerCase().includes(ql)||(r.notes||'').toLowerCase().includes(ql)||(r.theme_name||'').toLowerCase().includes(ql)||
+      (r.functionality_refs||[]).some(fr=>fr.functionality.toLowerCase().includes(ql)));
   }
+
+  // Category filter
   if(filters.cat.size) d=d.filter(r=>filters.cat.has(r.l1_category||''));
+
+  // Theme filter
   if(filters.theme.size) d=d.filter(r=>filters.theme.has((r.theme_name||'').trim()));
+
+  // Sheet type filter — bring in func-only stores if needed
+  if(filters.sheet.size){
+    d=d.filter(r=>(r.functionality_refs||[]).some(fr=>filters.sheet.has(fr.sheet_type)));
+  }
+
+  // Functionality name filter
+  if(filters.func.size){
+    d=d.filter(r=>(r.functionality_refs||[]).some(fr=>filters.func.has(fr.functionality)));
+  }
+
+  // Sort
   if(sortK==='ua') d.sort((a,b)=>(a.original_url||'').localeCompare(b.original_url||''));
   if(sortK==='ud') d.sort((a,b)=>(b.original_url||'').localeCompare(a.original_url||''));
-  if(sortK==='ch') d.sort((a,b)=>({'high':0,'medium':1,'low':2}[a.confidence]||2)-({'high':0,'medium':1,'low':2}[b.confidence]||2));
-  if(sortK==='cl') d.sort((a,b)=>({'high':0,'medium':1,'low':2}[b.confidence]||2)-({'high':0,'medium':1,'low':2}[a.confidence]||2));
   if(sortK==='ca') d.sort((a,b)=>(a.l1_category||'').localeCompare(b.l1_category||''));
   if(sortK==='ta') d.sort((a,b)=>(a.theme_name||'zzz').localeCompare(b.theme_name||'zzz'));
+
   filtered=d; render(); updateStats();
 }
 
@@ -736,19 +969,29 @@ function buildCard(r,i){
   const faviconSrc=isCustom?`https://www.google.com/s2/favicons?domain=${raw}&sz=32`:'';
   const tags=(r.tags||'').split(',').map(t=>t.trim()).filter(Boolean).slice(0,4);
   const isFav=favs.has(url); const isSel=selected.has(url);
-  const h=r.health||'active'; const conf=r.confidence||'low';
   const ruleColor=CAT_COL[r.l1_category]||'var(--cat-other)';
   const delay=Math.min(i%28,20)*0.016;
   const enc=encodeURIComponent(url);
+  const funcRefs=r.functionality_refs||[];
+  // Dedupe func badges by functionality name, show up to 3
+  const seen=new Set(); const badgeRefs=[];
+  for(const fr of funcRefs){if(!seen.has(fr.functionality)){seen.add(fr.functionality);badgeRefs.push(fr);}if(badgeRefs.length>=3)break;}
 
-  return`<div class="card${isFav?' fav':''}${isSel?' sel':''}" style="animation-delay:${delay}s" role="listitem"
+  const funcBadgesHtml=badgeRefs.length?`<div class="func-badges">
+    ${badgeRefs.map(fr=>`<span class="func-badge" data-st="${fr.sheet_type}" title="${fr.functionality}" onclick="event.stopPropagation();filterByFunc('${encodeURIComponent(fr.functionality)}')">
+      <span class="func-badge-dot"></span>${fr.functionality}
+    </span>`).join('')}
+    ${funcRefs.length>3?`<span class="func-badge" data-st="website" style="opacity:0.5">+${funcRefs.length-3}</span>`:''}
+  </div>`:'';
+
+  return`<div class="card${isFav?' fav':''}${isSel?' sel':''}${r._func_only?' func-only':''}" style="animation-delay:${delay}s" role="listitem"
     onclick="handleCardClick('${enc}')"
     onkeydown="if(event.key==='Enter')handleCardClick('${enc}')"
     tabindex="0" aria-label="${displayName}">
     <div class="card-rule" style="background:${ruleColor}" aria-hidden="true"></div>
     <div class="card-body">
       <div class="card-actions" aria-hidden="true">
-        <button class="act-btn${isFav?' fav-on':''}" onclick="event.stopPropagation();togFav('${enc}',this)" aria-label="${isFav?'Unsave':'Save'}">${isFav?'★':'☆'}</button>
+        ${r._func_only?'':`<button class="act-btn${isFav?' fav-on':''}" onclick="event.stopPropagation();togFav('${enc}',this)" aria-label="${isFav?'Unsave':'Save'}">${isFav?'★':'☆'}</button>`}
         <button class="act-btn${isSel?' sel-on':''}" onclick="event.stopPropagation();togSel('${enc}',this)" aria-label="${isSel?'Deselect':'Select'}">${isSel?'✓':'+'}</button>
       </div>
       <div class="card-top">
@@ -759,31 +1002,35 @@ function buildCard(r,i){
         </div>
       </div>
       <div class="card-div"></div>
-      <div class="cats">
+      ${!r._func_only?`<div class="cats">
         ${r.l1_category?`<span class="cp cl1">${r.l1_category}</span>`:''}
         ${r.l2_category&&r.l2_category!=='Unclear / Needs Review'?`<span class="cp cl2">${r.l2_category}</span>`:''}
         ${r.l3_category?`<span class="cp cl3">${r.l3_category}</span>`:''}
-      </div>
+      </div>`:''}
       ${tags.length?`<div class="ctags">${tags.map(t=>`<span class="ctag">${t}</span>`).join('')}</div>`:''}
       ${r.theme_name?`<div onclick="event.stopPropagation();filterByTheme('${encodeURIComponent(r.theme_name.trim())}')" class="theme-badge" title="Filter by theme: ${r.theme_name}"><span class="theme-badge-dot"></span>${r.theme_name}</div>`:''}
-      <div class="card-foot"><a class="btn-visit" href="${finalUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Visit Store ↗</a></div>
+      ${funcBadgesHtml}
+      <div class="card-foot"><a class="btn-visit" href="${finalUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Visit ↗</a></div>
     </div>
   </div>`;
 }
 
 function filterByTheme(enc){
   const th=decodeURIComponent(enc);
-  // Clear existing theme filters and apply this one
   filters.theme.clear();
   filters.theme.add(th);
-  // Update sidebar button states
   document.querySelectorAll('#themef .fb').forEach(b=>{
     const match=decodeURIComponent(b.getAttribute('onclick').match(/'([^']+)'/)?.[1]||'')===th;
-    b.classList.toggle('on',match);
-    b.setAttribute('aria-pressed',match.toString());
+    b.classList.toggle('on',match);b.setAttribute('aria-pressed',match.toString());
   });
-  page=1;run();
-  showToast(`Theme: ${th}`);
+  page=1;run();showToast(`Theme: ${th}`);
+}
+
+function filterByFunc(enc){
+  const fn=decodeURIComponent(enc);
+  filters.func.clear();filters.func.add(fn);
+  if(window._renderFuncList) window._renderFuncList();
+  page=1;run();showToast(`Func: ${fn}`);
 }
 
 function loadMore(){page++;render();}
@@ -805,8 +1052,7 @@ function togFav(enc,btn){
 function toggleSelectMode(){
   selectMode=!selectMode;
   const btn=document.getElementById('sel-mode-btn');
-  btn.classList.toggle('on',selectMode);
-  btn.setAttribute('aria-pressed',selectMode.toString());
+  btn.classList.toggle('on',selectMode);btn.setAttribute('aria-pressed',selectMode.toString());
   btn.querySelector('svg').style.display=selectMode?'none':'inline';
   btn.childNodes[btn.childNodes.length-1].textContent=selectMode?' Cancel':' Select';
   if(!selectMode) clearSelection();
@@ -814,7 +1060,7 @@ function toggleSelectMode(){
 function togSel(enc,btn){togSelByUrl(decodeURIComponent(enc));}
 function togSelByUrl(url){
   if(selected.has(url)) selected.delete(url); else selected.add(url);
-  updateSelBar(); render();
+  updateSelBar();render();
 }
 function selectAll(){filtered.slice(0,PG*page).forEach(r=>selected.add(r.original_url));updateSelBar();render();}
 function clearSelection(){selected.clear();updateSelBar();render();}
@@ -842,8 +1088,23 @@ function openDetail(r){
   const isCustom=raw&&!raw.includes('myshopify.com');
   const displayName=(isCustom?raw:url.replace('.myshopify.com','')).replace(/-/g,' ').trim();
   const isFav=favs.has(url);
-  const h=r.health||'active'; const conf=r.confidence||'low';
   const enc=encodeURIComponent(url);
+  const funcRefs=r.functionality_refs||[];
+
+  const funcSection=funcRefs.length?`
+    <div class="d-func-section">
+      <div class="d-lbl">Functionality References <span style="font-family:var(--mono);font-size:9px;color:var(--ink4);margin-left:4px">${funcRefs.length} entr${funcRefs.length===1?'y':'ies'}</span></div>
+      <div class="d-func-list">
+        ${funcRefs.map(fr=>`
+          <div class="d-func-item" data-st="${fr.sheet_type}">
+            <div class="d-func-name">${fr.functionality}</div>
+            <div class="d-func-meta">
+              <span class="d-func-st" data-st="${fr.sheet_type}">${ST_LABEL[fr.sheet_type]||fr.sheet_type}</span>
+              ${fr.url&&fr.url!==finalUrl?`<a href="${fr.url}" target="_blank" rel="noopener noreferrer" class="d-func-link" onclick="event.stopPropagation()">View ↗</a>`:''}
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`:'';
 
   document.getElementById('detail-content').innerHTML=`
     <div class="modal-head">
@@ -867,20 +1128,21 @@ function openDetail(r){
         Google
       </a>
     </div>
-    <div class="d-grid">
+    ${!r._func_only?`<div class="d-grid">
       <div class="d-field"><div class="d-lbl">L1 Category</div><div class="d-val">${r.l1_category||'—'}</div></div>
       <div class="d-field"><div class="d-lbl">L2 Sub-category</div><div class="d-val">${r.l2_category||'—'}</div></div>
       <div class="d-field"><div class="d-lbl">L3 Specific</div><div class="d-val">${r.l3_category||'—'}</div></div>
       <div class="d-field"><div class="d-lbl">Status Code</div><div class="d-val" style="font-family:var(--mono);font-size:12px">${r.status_code||'—'}</div></div>
       <div class="d-field"><div class="d-lbl">Shopify Theme</div><div class="d-val" style="font-family:var(--mono);font-size:12px">${r.theme_name||'—'}</div></div>
-    </div>
+    </div>`:``}
+    ${funcSection}
     ${r.tags?`<div class="d-tags-wrap"><div class="d-lbl">Tags</div><div class="d-tags">${r.tags.split(',').map(t=>`<span class="d-tag">${t.trim()}</span>`).join('')}</div></div>`:''}
     ${r.notes&&r.notes.length>10?`<div class="d-notes">${r.notes}</div>`:''}
     <div class="modal-actions">
-      <button class="btn-p" id="modal-fav-btn" onclick="togModalFav('${enc}',this)">${isFav?'★ Saved':'☆ Save'}</button>
+      ${!r._func_only?`<button class="btn-p" id="modal-fav-btn" onclick="togModalFav('${enc}',this)">${isFav?'★ Saved':'☆ Save'}</button>`:''}
       <button class="btn-s" onclick="navigator.clipboard.writeText('${finalUrl}').then(()=>showToast('URL copied'))">Copy URL</button>
       <button class="btn-s" onclick="closeMod('detail-modal')">Close</button>
-      <button class="btn-del" onclick="closeMod('detail-modal');confirmDelete('${enc}','${displayName.replace(/'/g,"\\'")}')" aria-label="Delete store">Delete</button>
+      ${!r._func_only?`<button class="btn-del" onclick="closeMod('detail-modal');confirmDelete('${enc}','${displayName.replace(/'/g,"\\'")}')">Delete</button>`:''}
     </div>`;
   openMod('detail-modal');
 }
@@ -898,7 +1160,7 @@ function confirmDelete(enc,name){
     <div class="confirm-box">
       <div class="confirm-ico">—</div>
       <div class="confirm-title">Remove this store?</div>
-      <div class="confirm-msg"><em style="font-family:var(--serif)">${name}</em> will be permanently removed. This cannot be undone.</div>
+      <div class="confirm-msg"><em style="font-family:var(--serif)">${name}</em> will be permanently removed.</div>
       <div class="confirm-actions">
         <button class="btn-danger" onclick="deleteStore('${enc}')">Remove</button>
         <button class="btn-s" onclick="closeMod('confirm-modal')">Cancel</button>
@@ -916,7 +1178,7 @@ function deleteStore(enc){
   favs.delete(url);selected.delete(url);
   localStorage.setItem('rb4_favs',JSON.stringify([...favs]));
   closeMod('confirm-modal');buildSidebar();run();
-  document.getElementById('s-total').textContent=DATA.length.toLocaleString();
+  document.getElementById('s-total').textContent=DATA.filter(s=>!s._func_only).length.toLocaleString();
   showToast('Store removed');
 }
 
@@ -938,12 +1200,13 @@ function submitAdd(e){
     l2_category:document.getElementById('add-l2').value||'',
     l3_category:document.getElementById('add-l3').value||'',
     tags:document.getElementById('add-tags').value,
-    confidence:'medium',notes:document.getElementById('add-notes').value,existing_tags:'',_added:true};
+    confidence:'medium',notes:document.getElementById('add-notes').value,
+    existing_tags:'',functionality_refs:[],_added:true};
   DATA.unshift(s);
   const local=JSON.parse(localStorage.getItem('rb4_added')||'[]');
   local.unshift(s);localStorage.setItem('rb4_added',JSON.stringify(local));
   closeMod('add-modal');buildSidebar();run();
-  document.getElementById('s-total').textContent=DATA.length.toLocaleString();
+  document.getElementById('s-total').textContent=DATA.filter(s=>!s._func_only).length.toLocaleString();
   showToast('Store added');
 }
 
@@ -959,8 +1222,10 @@ function closeMod(id){
 }
 
 function setTab(t,btn){
-  tab=t;document.querySelectorAll('.tab').forEach(b=>{b.classList.remove('on');b.setAttribute('aria-selected','false');});
-  btn.classList.add('on');btn.setAttribute('aria-selected','true');page=1;run();
+  tab=t;
+  document.querySelectorAll('.tab').forEach(b=>{b.classList.remove('on');b.setAttribute('aria-selected','false');});
+  btn.classList.add('on');btn.setAttribute('aria-selected','true');
+  page=1;run();
 }
 function setView(v,btn){
   document.querySelectorAll('.vbtn').forEach(b=>{b.classList.remove('on');b.setAttribute('aria-pressed','false');});
@@ -982,8 +1247,11 @@ document.addEventListener('keydown',e=>{
 });
 
 function updateStats(){
-  document.getElementById('s-favs').textContent=favs.size;
-  document.getElementById('fbadge').textContent=favs.size;
+  const fcount=favs.size;
+  document.getElementById('s-favs').textContent=fcount;
+  document.getElementById('fbadge').textContent=fcount;
+  const funcCount=DATA.filter(s=>(s.functionality_refs||[]).length>0).length;
+  document.getElementById('fbadge-func').textContent=funcCount.toLocaleString();
 }
 
 let toastT;
@@ -993,7 +1261,7 @@ function showToast(msg){
 }
 
 fetch('stores_live.json').then(r=>r.json()).then(d=>init(d)).catch(()=>{
-  document.getElementById('masonry').innerHTML=`<div class="empty"><div class="empty-ico">∅</div><div class="empty-title">Could not load data</div><div class="empty-sub">Keep dashboard.html and stores_live.json in the same folder</div></div>`;
+  document.getElementById('masonry').innerHTML=`<div class="empty"><div class="empty-ico">∅</div><div class="empty-title">Could not load data</div><div class="empty-sub">Keep index.html and stores_live.json in the same folder</div></div>`;
 });
 </script>
 </body>
