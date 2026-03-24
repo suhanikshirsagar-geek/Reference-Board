@@ -47,6 +47,11 @@
   --func-api-color: #6A1A80;
   --func-api-border:rgba(160,80,180,0.28);
 
+  /* Plus store */
+  --plus-bg:    rgba(34,130,60,0.10);
+  --plus-color: #1A6A30;
+  --plus-border:rgba(34,130,60,0.28);
+
   --cat-clothing: #D4A88A;
   --cat-sports:   #8AAF8A;
   --cat-health:   #C4A0B8;
@@ -268,6 +273,18 @@ body { background: var(--cream); color: var(--ink); font-family: var(--sans); mi
 .card.fav { border-color: var(--gold-lt); }
 .card.sel { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold-dim); }
 .card.func-only { border-style: dashed; background: var(--cream); }
+.card.is-plus { border-color: rgba(34,130,60,0.35); }
+.card.is-plus:hover { border-color: rgba(34,130,60,0.6); }
+
+/* Plus star badge */
+.plus-star {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 10px; color: var(--plus-color);
+  background: var(--plus-bg); border: 1px solid var(--plus-border);
+  padding: 1px 7px; border-radius: 1px;
+  font-family: var(--mono); letter-spacing: 0.06em; text-transform: uppercase;
+  margin-bottom: 6px;
+}
 @keyframes cardIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
 .card-rule { height: 3px; width: 100%; }
@@ -579,7 +596,7 @@ body { background: var(--cream); color: var(--ink); font-family: var(--sans); mi
     <input type="search" id="search-input" placeholder="Search stores, categories, themes, functionality…" autocomplete="off" aria-label="Search">
   </div>
   <div class="hdr-right">
-    <div class="hdr-count" aria-live="polite"><strong id="s-total">0</strong> stores · ⭐ <strong id="s-favs">0</strong></div>
+    <div class="hdr-count" aria-live="polite"><strong id="s-total">0</strong> stores · ⭐ <strong id="s-favs">0</strong> · <span style="color:var(--plus-color)">★</span> <strong id="s-plus">0</strong> plus</div>
     <button class="btn-add" onclick="openAddModal()" aria-label="Add new store" aria-haspopup="dialog">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Add Store
@@ -602,6 +619,19 @@ body { background: var(--cream); color: var(--ink); font-family: var(--sans); mi
         <option value="ta">Theme A → Z</option>
         <option value="ca">Category A → Z</option>
       </select>
+    </div>
+  </div>
+  <div class="sb-sec" style="padding-bottom:4px">
+    <button class="sb-lbl open" onclick="toggleSec(this)" aria-expanded="true">
+      <span class="sb-lbl-text">Shopify Plus</span>
+      <span class="sb-chevron">▼</span>
+    </button>
+    <div class="sb-sec-body" style="max-height:60px;padding-top:10px">
+      <button class="fb" id="plus-filter-btn" onclick="togPlus(this)" aria-pressed="false">
+        <span style="color:var(--plus-color);font-size:13px;line-height:1">★</span>
+        <span class="lbl">Plus stores only</span>
+        <span class="cnt" id="plus-total-count">0</span>
+      </button>
     </div>
   </div>
   <div class="sb-sec">
@@ -755,7 +785,7 @@ const ST_LABEL={'website':'Web','app':'App','api':'API'};
 let DATA=[], filtered=[], favs=new Set(JSON.parse(localStorage.getItem('rb4_favs')||'[]'));
 let selected=new Set();
 let filters={cat:new Set(),theme:new Set(),func:new Set(),sheet:new Set()};
-let tab='all', sortK='def', q='', page=1, PG=60, selectMode=false;
+let tab='all', sortK='def', q='', page=1, PG=60, selectMode=false, plusOnly=false;
 let funcShowAll=false;
 const FUNC_INIT_SHOW=12;
 
@@ -763,8 +793,11 @@ function init(d){
   const local=JSON.parse(localStorage.getItem('rb4_added')||'[]');
   DATA=[...d,...local];
   buildSidebar(); run();
-  // Only count non-func-only stores in header
-  document.getElementById('s-total').textContent=DATA.filter(s=>!s._func_only).length.toLocaleString();
+  const nonFunc=DATA.filter(s=>!s._func_only);
+  document.getElementById('s-total').textContent=nonFunc.length.toLocaleString();
+  const plusCount=DATA.filter(s=>s.plus).length;
+  document.getElementById('s-plus').textContent=plusCount.toLocaleString();
+  document.getElementById('plus-total-count').textContent=plusCount.toLocaleString();
 }
 
 function buildSidebar(){
@@ -851,7 +884,13 @@ function openSec(lblId){
   body.classList.remove('collapsed');
 }
 
-function toggleFuncMore(){funcShowAll=!funcShowAll;window._renderFuncList&&window._renderFuncList();}
+function togPlus(btn){
+  plusOnly=!plusOnly;
+  btn.classList.toggle('on',plusOnly);
+  btn.setAttribute('aria-pressed',plusOnly.toString());
+  page=1;run();
+}
+funcShowAll=!funcShowAll;window._renderFuncList&&window._renderFuncList();
 
 function tog(type,val,btn){
   const v=decodeURIComponent(val);
@@ -892,6 +931,9 @@ function updateBadge(lblId, count){
 
 function clearAll(){
   filters={cat:new Set(),theme:new Set(),func:new Set(),sheet:new Set()};
+  plusOnly=false;
+  const plusBtn=document.getElementById('plus-filter-btn');
+  if(plusBtn){plusBtn.classList.remove('on');plusBtn.setAttribute('aria-pressed','false');}
   document.querySelectorAll('.fb').forEach(b=>{b.classList.remove('on');b.setAttribute('aria-pressed','false');});
   document.querySelectorAll('.sheet-pill').forEach(b=>{b.classList.remove('on');b.setAttribute('aria-pressed','false');});
   q='';document.getElementById('search-input').value='';
@@ -936,6 +978,9 @@ function run(){
   if(filters.func.size){
     d=d.filter(r=>(r.functionality_refs||[]).some(fr=>filters.func.has(fr.functionality)));
   }
+
+  // Plus only filter
+  if(plusOnly) d=d.filter(r=>r.plus===true);
 
   // Sort
   if(sortK==='ua') d.sort((a,b)=>(a.original_url||'').localeCompare(b.original_url||''));
@@ -984,7 +1029,7 @@ function buildCard(r,i){
     ${funcRefs.length>3?`<span class="func-badge" data-st="website" style="opacity:0.5">+${funcRefs.length-3}</span>`:''}
   </div>`:'';
 
-  return`<div class="card${isFav?' fav':''}${isSel?' sel':''}${r._func_only?' func-only':''}" style="animation-delay:${delay}s" role="listitem"
+  return`<div class="card${isFav?' fav':''}${isSel?' sel':''}${r._func_only?' func-only':''}${r.plus?' is-plus':''}" style="animation-delay:${delay}s" role="listitem"
     onclick="handleCardClick('${enc}')"
     onkeydown="if(event.key==='Enter')handleCardClick('${enc}')"
     tabindex="0" aria-label="${displayName}">
@@ -1008,6 +1053,7 @@ function buildCard(r,i){
         ${r.l3_category?`<span class="cp cl3">${r.l3_category}</span>`:''}
       </div>`:''}
       ${tags.length?`<div class="ctags">${tags.map(t=>`<span class="ctag">${t}</span>`).join('')}</div>`:''}
+      ${r.plus?`<div class="plus-star">★ Shopify Plus</div>`:''}
       ${r.theme_name?`<div onclick="event.stopPropagation();filterByTheme('${encodeURIComponent(r.theme_name.trim())}')" class="theme-badge" title="Filter by theme: ${r.theme_name}"><span class="theme-badge-dot"></span>${r.theme_name}</div>`:''}
       ${funcBadgesHtml}
       <div class="card-foot"><a class="btn-visit" href="${finalUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Visit ↗</a></div>
@@ -1108,7 +1154,7 @@ function openDetail(r){
 
   document.getElementById('detail-content').innerHTML=`
     <div class="modal-head">
-      <h2 class="modal-title" id="detail-title">${displayName}</h2>
+      <h2 class="modal-title" id="detail-title">${displayName}${r.plus?' <span style="font-size:14px;color:var(--plus-color);vertical-align:middle" title="Shopify Plus">★</span>':''}</h2>
       <button class="modal-close" onclick="closeMod('detail-modal')" aria-label="Close">✕</button>
     </div>
     <div class="d-url-block">
@@ -1252,6 +1298,8 @@ function updateStats(){
   document.getElementById('fbadge').textContent=fcount;
   const funcCount=DATA.filter(s=>(s.functionality_refs||[]).length>0).length;
   document.getElementById('fbadge-func').textContent=funcCount.toLocaleString();
+  const plusCount=DATA.filter(s=>s.plus).length;
+  document.getElementById('s-plus').textContent=plusCount.toLocaleString();
 }
 
 let toastT;
